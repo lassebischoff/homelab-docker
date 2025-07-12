@@ -1,0 +1,141 @@
+# ------------------------------  
+# -- paperless (traefik)
+# -- Updated 2025-02-04
+# ------------------------------
+name: paperless
+
+
+networks:
+  paperless-backend:
+    name: paperless-backend
+
+
+services:
+  paperless:
+    image: paperlessngx/paperless-ngx:2.13
+    container_name: paperless_server
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges=true
+    depends_on:
+      - paperless_redis
+      - paperless_db
+      - paperless_gotenberg
+      - paperless_tika
+      - traefik
+    networks:
+      - paperless-backend
+      - traefik
+    volumes:
+      - ${DOCKERDIR}/appdata/paperless/local/data:/usr/src/paperless/data
+      - ${DOCKERDIR}/appdata/paperless/data/media:/usr/src/paperless/media
+      - ${DOCKERDIR}/appdata/paperless/data/export:/usr/src/paperless/export
+      - ${DOCKERDIR}/appdata/paperless/consume/lb:/usr/src/paperless/consume/lb
+      - ${DOCKERDIR}/appdata/paperless/consume/ab:/usr/src/paperless/consume/am
+      - ${DOCKERDIR}/appdata/paperless/consume/home:/usr/src/paperless/consume/home
+    secrets:
+      - paperless_db
+      - paperless_db_user
+      - paperless_db_password
+      - paperless_admin_user
+      - paperless_admin_password
+      - paperless_authentik_openid_connect
+    environment:
+      - TZ=${TZ}
+      - USERMAP_UID
+      - USERMAP_GID
+      - PAPERLESS_DBNAME_FILE
+      - PAPERLESS_DBUSER_FILE
+      - PAPERLESS_DBPASS_FILE
+      - PAPERLESS_ADMIN_USER_FILE
+      - PAPERLESS_ADMIN_PASSWORD_FILE
+      - COMPOSE_PROJECT_NAME
+      - PAPERLESS_REDIS
+      - PAPERLESS_DBHOST
+      - PAPERLESS_TIME_ZONE
+      - PAPERLESS_TIKA_ENABLED
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+      - PAPERLESS_TIKA_ENDPOINT
+      - PAPERLESS_URL
+      - PAPERLESS_OCR_LANGUAGE
+      - PAPERLESS_TRUSTED_PROXIES
+      - PAPERLESS_FILENAME_FORMAT
+      - PAPERLESS_CONSUMER_RECURSIVE
+      - PAPERLESS_CONSUMER_POLLING
+      - PAPERLESS_APPS
+      - PAPERLESS_SOCIALACCOUNT_PROVIDERS_FILE
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.paperless-rtr.rule=Host(`papers.${DOMAINNAME}`)"
+
+  paperless_redis:
+    image: library/redis:7
+    container_name: paperless_redis
+    restart: unless-stopped
+    command: --save 60 1 --loglevel warning
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    networks:
+      - paperless-backend
+    volumes:
+      - "$DOCKERDIR/appdata/paperless/redis/data:/data"
+
+  paperless_db:
+    image: library/postgres:16
+    container_name: paperless_db
+    shm_size: 128mb # https://hub.docker.com/_/postgres
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    networks:
+      - paperless-backend
+    volumes:
+      - ${DOCKERDIR}/appdata/paperless/db/data:/var/lib/postgresql/data
+    secrets:
+      - paperless_db
+      - paperless_db_user
+      - paperless_db_password
+    environment:
+      POSTGRES_DB_FILE: ${PAPERLESS_POSTGRES_DB_FILE}
+      POSTGRES_USER_FILE: ${PAPERLESS_POSTGRES_USER_FILE}
+      POSTGRES_PASSWORD_FILE: ${PAPERLESS_POSTGRES_PASSWORD_FILE} 
+
+  paperless_gotenberg:
+    image: gotenberg/gotenberg:8.7
+    container_name: paperless_gotenberg
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges=true
+    networks:
+      - paperless-backend
+
+  paperless_tika:
+    image: apache/tika:3.0.0.0
+    container_name: paperless_tika
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      paperless-backend:

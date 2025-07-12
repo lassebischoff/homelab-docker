@@ -1,0 +1,22 @@
+http:
+  routers:
+    unifi-rtr:
+      rule: "Host(`unifi.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: unifi
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    unifi:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "unifi"
+        servers:          
+          - url: "https://10.16.99.80:8443"
+  serversTransports:
+    unifi:
+      insecureSkipVerify: true

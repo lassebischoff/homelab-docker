@@ -1,0 +1,16 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/docker/
+
+docker-local:
+  host: socket-proxy
+  port: 2375
+  include:                      # Optional
+    - network=traefik           # Optional
+  exclude:                      # Optional
+    - label=hide_from_homepage  # Optional
+  show_all: false               # Optional
+  socket: false                 # Optional
+
+# my-docker:
+#   socket: /var/run/docker.sock

@@ -1,0 +1,30 @@
+# ------------------------------  
+# -- SearXNG
+# -- Updated 2025-02-22
+# ------------------------------
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - traefik
+    networks:
+      - traefik
+    environment:
+      - TZ
+      - PUID
+      - PGID
+      - BASE_URL
+      - INSTANCE_NAME
+      - SEARXNG_SECRET
+    volumes:
+      - ${DOCKERDIR}/appdata/searxng/data/config:/etc/searxng
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.searxng-rtr.rule=Host(`search.${DOMAINNAME}`)"

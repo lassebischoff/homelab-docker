@@ -1,0 +1,22 @@
+http:
+  routers:
+    fwl01-rtr:
+      rule: "Host(`fwl01.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: fwl01
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    fwl01:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "fwl"
+        servers:          
+          - url: "https://10.16.99.1:10443"
+  serversTransports:
+    fwl:
+      insecureSkipVerify: true

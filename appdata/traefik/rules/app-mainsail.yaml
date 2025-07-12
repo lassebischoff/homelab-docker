@@ -1,0 +1,18 @@
+http:
+  routers:
+    mainsails-rtr:
+      rule: "Host(`voron.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: mainsail
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    mainsail:
+      loadBalancer:
+        passHostHeader: true
+        servers:          
+          - url: "http://10.16.100.102:80"

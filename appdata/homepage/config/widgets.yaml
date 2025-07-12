@@ -1,0 +1,33 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/info-widgets/
+
+- greeting:
+    text_size: xl
+    text: Hello!
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /
+
+- search:
+    provider: custom
+    url: https://search.{{HOMEPAGE_VAR_DOMAIN}}/search?q=
+    target: _self
+    suggestionUrl: https://ac.ecosia.org/autocomplete?type=list&q= # Optional
+    showSearchSuggestions: true # Optional 
+
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      hourCycle: h23
+
+- openmeteo:
+    label: Zu Hause
+    latitude: {{HOMEPAGE_FILE_LATITUDE}} 
+    longitude: {{HOMEPAGE_FILE_LONGITUDE}}
+    timezone: {{HOMEPAGE_VAR_TZ}}
+    units: metric
+    cache: 5

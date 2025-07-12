@@ -1,0 +1,162 @@
+# ------------------------------
+# -- authentik (Identity Provider / SSO)
+# -- Updated/Created 2025-02-07
+# Authentik configuration: https://docs.goauthentik.io/docs/installation/configuration
+# ------------------------------
+name: authentik # Project Name
+
+
+networks:
+  authentik-backend:
+    name: authentik-backend
+
+
+services:
+  authentik_postgresql:
+    image: docker.io/library/postgres:16-alpine
+    container_name: authentik_postgresql
+    shm_size: 128mb # https://hub.docker.com/_/postgres
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    networks:
+      - authentik-backend
+    volumes:
+      - "$DOCKERDIR/appdata/authentik/postgresql/data:/var/lib/postgresql/data"
+    secrets:
+      - authentik_postgresql_db
+      - authentik_postgresql_user
+      # Generate the password with openssl rand 36 | base64 -w 0
+      - authentik_postgresql_password
+    environment:
+      POSTGRES_DB_FILE: ${AUTHENTIK_POSTGRES_DB_FILE}
+      POSTGRES_USER_FILE: ${AUTHENTIK_POSTGRES_USER_FILE}
+      POSTGRES_PASSWORD_FILE: ${AUTHENTIK_POSTGRES_PASSWORD_FILE}
+
+
+  authentik_redis:
+    image: docker.io/library/redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    networks:
+      - authentik-backend
+    volumes:
+      - "$DOCKERDIR/appdata/authentik/redis/data:/data"
+
+
+  # Use the embedded outpost (2021.8.1+) instead of the seperate Forward Auth / Proxy Provider container
+  authentik_server:
+    image: ghcr.io/goauthentik/server:2024.12.3
+    container_name: authentik_server
+    restart: unless-stopped
+    command: server
+    user: ${PUID}:${PGID}
+    depends_on:
+      - authentik_postgresql
+      - authentik_redis
+    networks:
+      - traefik
+      - socket_proxy
+      - authentik-backend
+    secrets:
+      - authentik_postgresql_db
+      - authentik_postgresql_user
+      - authentik_postgresql_password
+      - authentik_secret_key
+        - forwardmail_smtp_username
+      - forwardmail_smtp_password
+    environment:
+      - AUTHENTIK_REDIS__HOST
+      - AUTHENTIK_POSTGRESQL__HOST
+      - AUTHENTIK_POSTGRESQL__NAME
+      - AUTHENTIK_POSTGRESQL__USER
+      - AUTHENTIK_POSTGRESQL__PASSWORD
+      - AUTHENTIK_DISABLE_STARTUP_ANALYTICS
+      - AUTHENTIK_DISABLE_UPDATE_CHECK
+      - AUTHENTIK_ERROR_REPORTING__ENABLED
+      - AUTHENTIK_LOG_LEVEL
+      - AUTHENTIK_SECRET_KEY
+      - AUTHENTIK_COOKIE_DOMAIN
+      # AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS
+      - DOCKER_HOST=tcp://socket-proxy:2375 # Use this if you have Socket Proxy enabled.
+      - AUTHENTIK_EMAIL__HOST
+      - AUTHENTIK_EMAIL__PORT
+      - AUTHENTIK_EMAIL__USERNAME
+      - AUTHENTIK_EMAIL__PASSWORD
+      - AUTHENTIK_EMAIL__USE_TLS
+      - AUTHENTIK_EMAIL__USE_SSL
+      - AUTHENTIK_EMAIL__TIMEOUT
+      - AUTHENTIK_EMAIL__FROM
+    volumes:
+      - "$DOCKERDIR/appdata/authentik/media:/media"
+      - "$DOCKERDIR/appdata/authentik/custom-templates:/templates"
+        #- "$DOCKERDIR/appdata/authentik/geoip/data:/geoip"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.authentik-rtr.rule=Host(`auth.${DOMAINNAME}`)"
+      ## Individual Application forwardAuth regex (catch any subdomain using individual application forwardAuth)  
+      - "traefik.http.routers.authentik-output-rtr.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.${DOMAINNAME}`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      ## HTTP Services
+      - "traefik.http.routers.authentik-rtr.service=authentik-svc"
+      - "traefik.http.services.authentik-svc.loadBalancer.server.port=9000"
+
+
+  authentik_worker:
+    image: ghcr.io/goauthentik/server:2024.12.3
+    container_name: authentik_worker
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    command: worker
+    depends_on:
+      - authentik_postgresql
+      - authentik_redis
+    networks:
+      - socket_proxy
+      - authentik-backend
+    secrets:
+      - authentik_postgresql_db
+      - authentik_postgresql_user
+      - authentik_postgresql_password
+      - authentik_secret_key
+      - forwardmail_smtp_username
+      - forwardmail_smtp_password
+    environment:
+      - DOCKER_HOST
+      - AUTHENTIK_REDIS__HOST
+      - AUTHENTIK_POSTGRESQL__HOST
+      - AUTHENTIK_POSTGRESQL__NAME
+      - AUTHENTIK_POSTGRESQL__USER
+      - AUTHENTIK_POSTGRESQL__PASSWORD
+      - AUTHENTIK_DISABLE_STARTUP_ANALYTICS
+      - AUTHENTIK_DISABLE_UPDATE_CHECK
+      - AUTHENTIK_ERROR_REPORTING__ENABLED
+      - AUTHENTIK_SECRET_KEY
+      - AUTHENTIK_COOKIE_DOMAIN
+      - AUTHENTIK_LOG_LEVEL
+      - AUTHENTIK_EMAIL__HOST
+      - AUTHENTIK_EMAIL__PORT
+      - AUTHENTIK_EMAIL__USERNAME
+      - AUTHENTIK_EMAIL__PASSWORD
+      - AUTHENTIK_EMAIL__USE_TLS
+      - AUTHENTIK_EMAIL__USE_SSL
+      - AUTHENTIK_EMAIL__TIMEOUT
+      - AUTHENTIK_EMAIL__FROM
+    volumes:
+      - "$DOCKERDIR/appdata/authentik/media:/media"
+      - "$DOCKERDIR/appdata/authentik/custom-templates:/templates"
+      #- "$DOCKERDIR/appdata/authentik/geoip/data:/geoip"
+      # - /var/run/docker.sock:/var/run/docker.sock # Uncomment if NOT using socket-proxy
+      #- "$DOCKERDIR/appdata/traefik/cert_export:/certs:ro" # If NOT using reverse proxy, manually map in certificates

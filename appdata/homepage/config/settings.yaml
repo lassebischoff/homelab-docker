@@ -1,0 +1,54 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings/
+
+instanceName: home
+title: Dashboard
+headerStyle: underlined
+#favicon: 
+
+#background:
+  #image: https://images.wallpaperscraft.com/image/single/fern_branches_plants_1335608_2048x1152.jpg
+  #blur: md
+  #saturate: 95
+  #brightness: 75
+  #opacity: 50
+
+
+#providers:
+#  openweathermap: openweathermapapikey
+#  weatherapi: weatherapiapikey
+
+useEqualHeights: true
+statusStyle: "dot"
+showStats: false
+hideErrors: true
+
+target: _self # Open everything in same tab
+
+layout:
+    Services:
+      tab: Home
+      style: row
+      columns: 3
+      useEqualHeights: true
+    3D-Druck:
+      tab: Home
+      style: row
+      columns: 2
+    Daily:
+      tab: Home
+      style: row
+      columns: 2
+
+    Dienste:
+      tab: Admin
+      style: column
+      columns: 2
+    Infrastruktur:
+      tab: Admin
+      style: column
+      columns: 2
+
+
+      

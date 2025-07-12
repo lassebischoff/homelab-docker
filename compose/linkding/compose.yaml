@@ -1,0 +1,45 @@
+# ------------------------------
+# -- Linkding (traefik)
+# -- Updated 2025-04-19
+# ------------------------------
+
+name: linkding
+services:
+  linkding:
+    image: sissbruecker/linkding:1.39.1
+    container_name: linkding
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - traefik
+    networks:
+      traefik:
+    environment:
+      - TZ=${TZ}
+      - LD_CONTEXT_PATH
+      - LD_SUPERUSER_NAME
+      - LD_SUPERUSER_PASSWORD
+      - LD_DISABLE_BACKGROUND_TASKS
+      - LD_DISABLE_URL_VALIDATION
+      - LD_ENABLE_OIDC
+      - OIDC_OP_AUTHORIZATION_ENDPOINT
+      - OIDC_OP_TOKEN_ENDPOINT
+      - OIDC_OP_USER_ENDPOINT
+      - OIDC_OP_JWKS_ENDPOINT
+      - OIDC_RP_CLIENT_ID
+      - OIDC_RP_CLIENT_SECRET
+      - LD_ENABLE_AUTH_PROXY
+      - LD_AUTH_PROXY_USERNAME_HEADER
+      - LD_AUTH_PROXY_LOGOUT_URL
+      - LD_CSRF_TRUSTED_ORIGINS
+      - LD_DB_ENGINE
+      - LD_LOG_X_FORWARDED_FOR
+    volumes:
+      - ${DOCKERDIR}/appdata/linkding/data:/etc/linkding/data # Create directories "../data/assets", "../data/favicons", "../data/previews" before starting 
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.linkding-rtr.rule=Host(`link.${DOMAINNAME}`)"
+      - "traefik.http.services.linkding-svc.loadbalancer.server.port=9090"

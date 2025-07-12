@@ -1,0 +1,14 @@
+################################################################
+# Middlewares (https://github.com/htpcBeginner/docker-traefik/blob/master/appdata/traefik2/rules/cloudserver/middlewares.yml)
+# 2024 update: https://github.com/htpcBeginner/docker-traefik/tree/master/appdata/traefik3/rules/hs
+# https://www.smarthomebeginner.com/traefik-docker-compose-guide-2022/
+#
+# Dynamic configuration
+################################################################
+http:
+  middlewares:
+    # DDoS Prevention
+    middlewares-rate-limit:
+      rateLimit:
+        average: 100
+        burst: 50

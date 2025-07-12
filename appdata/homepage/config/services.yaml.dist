@@ -1,0 +1,216 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Services:
+  - FoundryVTT:
+      icon: sh-foundry-virtual-tabletop
+      href: https://foundryvtt.com # Change to your actual domain
+      description: Online Tabletop Rollenspiele 
+      siteMonitor: https://foundrvvtt.com # Change to your actual domain
+  - Paperless:
+      icon: paperless.svg
+      href: https://papers.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Digitales Dokumentenmanagement
+      server: docker-local
+      container: paperless_server
+  - StirlingPDF:
+      icon: stirling-pdf.svg
+      href: https://pdf.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: PDF Tools
+      server: docker-local
+      container: stirlingpdf
+  - Vaultwarden:
+      icon: vaultwarden.svg
+      href: https://vault.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Tresor für Zugangsdaten, Identitäten, Karten usw.
+      server: docker-local
+      container: vaultwarden
+  - Linkding:
+      icon: sh-linkding
+      href: https://link.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Verwaltung von Lesezeichen
+      server: docker-local
+      container: linkding
+  - Immich:
+      icon: sh-immich
+      href: https://pics.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Fotosammlung
+      server: docker-local
+      container: immich_server
+  - Audiobookshelf:
+      icon: audiobookshelf.svg
+      href: https://shelf.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Bücher, ebooks & Podcasts
+      server: docker-local
+      container: audiobookshelf
+  - Homeassistant:
+      icon: home-assistant.svg
+      href: https://ha.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Smarthome und IoT
+      siteMonitor: https://ha.{{HOMEPAGE_VAR_DOMAIN}}
+  - NodeRED:
+      icon: node-red.svg
+      href: https://nodered.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Visuelle IoT-Automatisierungsplattform
+      siteMonitor: https://nodered.{{HOMEPAGE_VAR_DOMAIN}}
+  - authentik:
+      icon: authentik.svg
+      href: https://auth.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Zentraler Login
+      server: docker-local
+      container: authentik_server
+  - Excalidraw:
+      icon: sh-excalidraw 
+      href: https://excalidraw.com
+      description: Online whiteboard
+      siteMonitor: https://excalidraw.com
+  - Diagrams.net:
+      icon: sh-draw-io
+      href: https://app.diagrams.net
+      description: Diagramme & Flowcharts
+      siteMonitor: https://app.diagrams.net
+
+- 3D-Druck:
+  - Voron 2.4:
+      icon: sh-fluidd.svg
+      href: https://3d.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: 3D-Drucker
+      siteMonitor: http://10.16.100.102:81
+      statusStyle: dot
+      widget:
+        type: moonraker
+        url: https://3d.example.com # Change to your actual domain
+        key: {{HOMEPAGE_FILE_MOONRAKER_FLUIDD_API_KEY}}
+        fields: ["printer_state","print_status","print_progress","layers"]
+  - Spoolman:
+      icon: sh-spoolman.svg
+      href: https://spools.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Filamentverwaltung
+      siteMonitor: https://spools.{{HOMEPAGE_VAR_DOMAIN}}/
+      statusStyle: dot
+      widget:
+        type: spoolman
+        url: http://10.16.10.150:7912
+        #spoolIds: [4, 6, 7, 8] # optional
+
+- Dienste:
+  - Traefik:
+      icon: traefik.svg
+      href: https://traefik.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Proxy-Dashboard
+      server: docker-local
+      container: traefik
+      #widget:
+        #type: traefik
+        #url: https://traefik.{{HOMEPAGE_VAR_DOMAIN}}/
+        #username: username # optional
+        #password: password # optional
+        #fields: ["routers", "services", "middleware"]
+  - authentik:
+      icon: authentik.svg
+      href: https://auth.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: User Verwaltung und Authentifizierung
+      server: docker-local
+      container: authentik_server
+      widget:
+        type: authentik
+        url: https://auth.{{HOMEPAGE_VAR_DOMAIN}}
+        key: {{HOMEPAGE_FILE_AUTHENTIK_API_KEY}}
+        fields: ["users", "loginsLast24H", "failedLoginsLast24H"]
+  - Socket-Proxy:
+      icon: sh-docker.svg
+      description: Docker Socket Proxy
+      server: docker-local
+      container: socket-proxy
+      statusStyle: dot
+- Infrastruktur:
+  - Firewall:
+      icon: opnsense.svg
+      href: https://fwl01.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Zentrale Firewall
+      siteMonitor: https://10.16.99.1:10443
+      statusStyle: dot
+      widget:
+        type: opnsense
+        url: https://fwl01.{{HOMEPAGE_VAR_DOMAIN}}
+        username: {{HOMEPAGE_FILE_OPNSENSE_API_KEY}}
+        password: {{HOMEPAGE_FILE_OPNSENSE_API_SECRET}}
+        #wan: opt1 # optional, defaults to wan
+        fields: ["cpu", "memory", "wanUpload", "wanDownload"]
+  - Switch:
+      icon: mikrotik.svg
+      href: https://sw01.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: WebUI zentraler Switch
+      siteMonitor: http://10.16.99.2
+      statusStyle: dot
+  - Unifi Controller:
+      icon: sh-ubiquiti-unifi.svg
+      href: https://unifi.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: WiFi Verwaltung
+      siteMonitor: https://10.16.99.80:8443
+      statusStyle: dot
+      widget:
+        type: unifi
+        url: https://unifi.{{HOMEPAGE_VAR_DOMAIN}}
+        username: {{HOMEPAGE_FILE_UNIFI_USERNAME}}
+        password: {{HOMEPAGE_FILE_UNIFI_PASSWORD}}
+        #site: Site Name # optional
+  - PVE01:
+      icon: proxmox.svg
+      href: https://pve01.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Proxmox Hypervisor 01
+      siteMonitor: https://10.16.99.20:8006
+      statusStyle: dot
+      widget:
+        type: proxmox
+        url: https://10.16.99.20:8006
+        username: {{HOMEPAGE_FILE_PROXMOX_API_TOKEN_ID}}
+        password: {{HOMEPAGE_FILE_PROXMOX_API_TOKEN_SECRET}}   
+        node: pve01
+        fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
+  - PBS01:
+      icon: proxmox.svg
+      href: https://pbs01.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Proxmox Backup Server 01
+      siteMonitor: https://10.16.99.40:8007
+      statusStyle: dot
+      widget:
+        type: proxmoxbackupserver
+        url: https://10.16.99.40:8007
+        username: {{HOMEPAGE_FILE_PROXMOXBACKUPSERVER_API_TOKEN_ID}}
+        password: {{HOMEPAGE_FILE_PROXMOXBACKUPSERVER_API_TOKEN_SECRET}}
+        fields: ["datastore_usage", "failed_tasks_24h", "cpu_usage", "memory_usage"]
+  - NAS01:
+      icon: truenas-scale.svg
+      href: https://nas01.{{HOMEPAGE_VAR_DOMAIN}}/
+      description: Zentraler Netzwerkspeicher
+      siteMonitor: https://10.16.99.30
+      statusStyle: dot
+      widget:
+        type: truenas
+        url: https://10.16.99.30
+        key: {{HOMEPAGE_FILE_TRUENAS_API_KEY}}
+        enablePools: true
+        sfields: ["load", "uptime", "alerts"]
+
+- Daily:
+    - Kalender:
+        widget:
+          type: calendar
+          firstDayInWeek: monday
+          view: monthly
+          maxEvents: 10
+          showTime: true
+          timezone: Europe/Berlin
+          integrations:
+            - type: ical
+              url: youricaldomain.com # Change to a valid ical URL
+              name: Test
+              color: teal
+    - Windvorhersage:
+        widget:
+          type: iframe
+          name: windy
+          classes: h-650 sm:h-650 md:h-650 lg:h-650 xl:h-650 2xl:h-72
+          src: yourwindyiframe.com # Create a valid iframe-embed on windy.com 

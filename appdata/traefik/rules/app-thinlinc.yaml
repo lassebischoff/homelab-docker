@@ -1,0 +1,22 @@
+http:
+  routers:
+    thinlinc-rtr:
+      rule: "Host(`linc.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: thinlinc
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    thinlinc:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "thinlinc"
+        servers:          
+          - url: "https://10.16.99.249:300"
+  serversTransports:
+    thinlinc:
+      insecureSkipVerify: true

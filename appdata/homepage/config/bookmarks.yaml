@@ -1,0 +1,69 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/bookmarks
+
+- Tools:
+    - Claude:
+        - icon: sh-claude
+          href: https://claude.ai
+    - ChatGPT:
+        - icon: sh-chatgpt
+          href: https://chatgpt.com/
+          #description: AI Chatbot      # Replaces URL
+    - Printables:
+        - icon: si-printables-#FA6831
+          href: https://printables.com/
+    - onshape:
+        - icon: /icons/onshape.png
+          href: https://cad.onshape.com/
+    - kleinanzeigen:
+        - icon: /icons/kleinanzeigen.jpg
+          href: https://www.kleinanzeigen.de/
+
+- Mail & Social:
+    - Posteo:
+        - icon: /icons/posteo.png
+          href: https://posteo.de/
+    - Mailbox:
+        - icon: si-mailboxdotorg-#76BB21
+          href: https://mailbox.org/
+    - Kubecraft:
+        - icon: /icons/kubecraft.jpeg
+          href: https://www.skool.com/kubecraft
+
+- Entertainment:
+    - Spotify:
+        - icon: sh-spotify
+          href: https://open.spotify.com/
+    - YouTube:
+        - icon: sh-youtube
+          href: https://youtube.com/
+    - Netflix:
+        - icon: sh-netflix
+          href: https://netflix.com/
+    - Amazon:
+        - icon: sh-amazon-prime
+          href: https://amazon.de/amazonprime
+    - Disney+:
+        - icon: sh-disney-plus-light
+          href: https://disneyplus.com/
+
+- Cloud & Domain:
+    - Hetzner:
+        - icon: sh-hetzner
+          href: https://console.hetzner.cloud/
+    - Forward Email:
+        - icon: /icons/forwardemail.png
+          href: https://forwardemail.net/
+    - Cloudflare:
+        - icon: sh-cloudflare
+          href: https://dash.cloudflare.com/
+    - Domain Offensive:
+        - icon: /icons/domain-offensive.png
+          href: https://do.de/
+    - Github:
+        - icon: sh-github-light
+          href: https://github.com/
+    - Codeberg:
+        - icon: sh-codeberg
+          href: https://codeberg.org/

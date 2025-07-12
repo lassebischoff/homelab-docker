@@ -1,0 +1,22 @@
+http:
+  routers:
+    pve01-rtr:
+      rule: "Host(`pve01.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: pve01
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    pve01:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "pve" # Allow connections to services using self-signed certs
+        servers:          
+          - url: "https://10.16.99.20:8006"
+  serversTransports:
+    pve:
+      insecureSkipVerify: true

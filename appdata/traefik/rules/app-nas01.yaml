@@ -1,0 +1,22 @@
+http:
+  routers:
+    nas01-rtr:
+      rule: "Host(`nas01.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: nas01
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    nas01:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "nas"
+        servers:          
+          - url: "https://10.16.99.30"
+  serversTransports:
+    nas:
+      insecureSkipVerify: true

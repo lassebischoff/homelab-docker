@@ -1,0 +1,18 @@
+################################################################
+# Middlewares (https://github.com/htpcBeginner/docker-traefik/blob/master/appdata/traefik2/rules/cloudserver/middlewares.yml)
+# 2024 update: https://github.com/htpcBeginner/docker-traefik/tree/master/appdata/traefik3/rules/hs
+# https://www.smarthomebeginner.com/traefik-docker-compose-guide-2022/
+#
+# Dynamic configuration
+################################################################
+http:
+  middlewares:
+    # Prevent too large of a body
+    # https://stackoverflow.com/questions/49717670/how-to-config-upload-body-size-restriction-in-traefik
+    middlewares-buffering:
+      buffering:
+        maxRequestBodyBytes: 10485760
+        memRequestBodyBytes: 2097152
+        maxResponseBodyBytes: 10485760
+        memResponseBodyBytes: 2097152
+        retryExpression: "IsNetworkError() && Attempts() <= 2"

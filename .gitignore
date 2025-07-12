@@ -1,0 +1,28 @@
+# Exclude sensitive data
+.env
+secrets/*
+!secrets/.gitkeep
+
+# Exclude all appdata except .gitkeep files
+appdata/**
+!appdata/**/.gitkeep
+
+# Manually add specific config files with: git add -f filename
+
+# Exclude logs
+logs/*/*
+!logs/*/.gitkeep
+
+# Exclude docs for now
+docs/*
+
+# Exclude scripts for now
+scripts/*
+
+# OS, log and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.log

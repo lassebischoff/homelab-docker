@@ -1,0 +1,6 @@
+services:
+#  cpu: {}
+
+  quicksync:
+    devices:
+      - /dev/dri:/dev/dri

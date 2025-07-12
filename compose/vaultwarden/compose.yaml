@@ -1,0 +1,50 @@
+# ------------------------------  
+# -- Vaultwarden (traefik)
+# -- Updated 2025-02-03
+# ------------------------------
+
+
+name: vaultwarden
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.32.5
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - traefik
+    networks:
+      traefik:
+    secrets:
+      - vaultwarden_admin_token
+      - vaultwarden_installation_id
+      - vaultwarden_installation_key
+      - forwardmail_smtp_username
+      - forwardmail_smtp_password
+    environment:
+      - TZ=${TZ}
+      - DOMAIN
+      - ADMIN_TOKEN_FILE
+      - PUSH_ENABLED
+      - PUSH_INSTALLATION_ID_FILE
+      - PUSH_INSTALLATION_KEY_FILE
+      - TRASH_AUTO_DELETE_DAYS
+      - SIGNUPS_ALLOWED
+      - INVITATIONS_ALLOWED
+      - SMTP_HOST
+      - SMTP_FROM
+      - SMTP_FROM_NAME
+      - SMTP_USERNAME_FILE
+      - SMTP_PASSWORD_FILE
+      - SMTP_TIMEOUT
+      - SMTP_SECURITY
+      - SMTP_PORT
+    volumes:
+      - ${DOCKERDIR}/appdata/vaultwarden:/data
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.vault-rtr.rule=Host(`vault.${DOMAINNAME}`)"

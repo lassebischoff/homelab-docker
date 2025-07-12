@@ -1,0 +1,113 @@
+### Networking ###
+
+networks:
+  socket_proxy:
+    name: socket_proxy
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.250.0/24
+    external: true
+    
+  traefik:
+    name: traefik
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.255.224.0/20
+    external: true
+
+### Docker Secrets ###
+# Owner: docker:docker
+# Permissions of files & directory on host to: 0400 (-r--)
+
+secrets:
+  ## General
+  latitude:
+    file: ${DOCKERDIR}/secrets/latitude
+  longitude:
+    file: ${DOCKERDIR}/secrets/longitude
+  ## Cloudflare / Traefik
+  cf_email:
+    file: ${DOCKERDIR}/secrets/cf_email
+  # cf_api_key:
+  #   file: ${DOCKERDIR}/secrets/cf_api_key
+  cf_dns_api_token:
+    file: ${DOCKERDIR}/secrets/cf_dns_api_token
+  #traefik_dashboard_credentials: # Needed for basic auth, not needed for now, see labels
+  #  file: ${DOCKERDIR}/secrets/traefik_dashboard_credentials
+  ## Authentik
+  authentik_postgresql_db:
+    file: ${DOCKERDIR}/secrets/authentik_postgresql_db
+  authentik_postgresql_user:
+    file: ${DOCKERDIR}/secrets/authentik_postgresql_user
+  authentik_postgresql_password:
+    file: ${DOCKERDIR}/secrets/authentik_postgresql_password
+  authentik_secret_key:
+    file: ${DOCKERDIR}/secrets/authentik_secret_key
+  forwardmail_smtp_username:
+    file: ${DOCKERDIR}/secrets/forwardmail_smtp_username
+  forwardmail_smtp_password:
+    file: ${DOCKERDIR}/secrets/forwardmail_smtp_password
+  ## Vaultwarden
+  vaultwarden_admin_token:
+    file: ${DOCKERDIR}/secrets/vaultwarden_admin_token
+  vaultwarden_installation_id:
+    file: ${DOCKERDIR}/secrets/vaultwarden_installation_id
+  vaultwarden_installation_key:
+    file: ${DOCKERDIR}/secrets/vaultwarden_installation_key
+  ## Paperless
+  paperless_db:
+    file: ${DOCKERDIR}/secrets/paperless_db
+  paperless_db_user:
+    file: ${DOCKERDIR}/secrets/paperless_db_user
+  paperless_db_password:
+    file: ${DOCKERDIR}/secrets/paperless_db_password
+  paperless_admin_user:
+    file: ${DOCKERDIR}/secrets/paperless_admin_user
+  paperless_admin_password:
+    file: ${DOCKERDIR}/secrets/paperless_admin_password
+  paperless_authentik_openid_connect:
+    file: ${DOCKERDIR}/secrets/paperless_authentik_openid_connect
+  ## SearXNG
+  searxng_secret_key:
+    file: ${DOCKERDIR}/secrets/searxng_secret_key
+  ## Homepage
+  homepage_authentik_api_key:
+    file: ${DOCKERDIR}/secrets/homepage_authentik_api_key
+  homepage_moonraker_fluidd_api_key:
+    file: ${DOCKERDIR}/secrets/homepage_moonraker_fluidd_api_key
+  homepage_unifi_username:
+    file: ${DOCKERDIR}/secrets/homepage_unifi_username
+  homepage_unifi_password:
+    file: ${DOCKERDIR}/secrets/homepage_unifi_password
+  homepage_proxmox_api_token_id:
+    file: ${DOCKERDIR}/secrets/homepage_proxmox_api_token_id
+  homepage_proxmox_api_token_secret:
+    file: ${DOCKERDIR}/secrets/homepage_proxmox_api_token_secret
+  homepage_proxmoxbackupserver_api_token_id:
+    file: ${DOCKERDIR}/secrets/homepage_proxmoxbackupserver_api_token_id
+  homepage_proxmoxbackupserver_api_token_secret:
+    file: ${DOCKERDIR}/secrets/homepage_proxmoxbackupserver_api_token_secret
+  homepage_truenas_api_key:
+    file: ${DOCKERDIR}/secrets/homepage_truenas_api_key
+  homepage_opnsense_api_key:
+    file: ${DOCKERDIR}/secrets/homepage_opnsense_api_key
+  homepage_opnsense_api_secret:
+    file: ${DOCKERDIR}/secrets/homepage_opnsense_api_secret
+
+
+### Include external compose files  ###
+
+include:
+  - ${DOCKERDIR}/compose/traefik/compose.yaml
+  - ${DOCKERDIR}/compose/socket-proxy/compose.yaml
+  - ${DOCKERDIR}/compose/authentik/compose.yaml
+  - ${DOCKERDIR}/compose/audiobookshelf/compose.yaml
+  - ${DOCKERDIR}/compose/vaultwarden/compose.yaml
+  - ${DOCKERDIR}/compose/paperless/compose.yaml
+  - ${DOCKERDIR}/compose/searxng/compose.yaml
+  - ${DOCKERDIR}/compose/homepage/compose.yaml
+  - ${DOCKERDIR}/compose/stirlingpdf/compose.yaml
+  - ${DOCKERDIR}/compose/linkding/compose.yaml
+  - ${DOCKERDIR}/compose/immich/compose.yaml

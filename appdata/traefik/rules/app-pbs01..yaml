@@ -1,0 +1,22 @@
+http:
+  routers:
+    pbs01-rtr:
+      rule: "Host(`pbs01.{{env "DOMAINNAME"}}`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - chain-no-auth
+      service: pbs01
+      tls:
+        certResolver: le
+        options: tls-opts@file
+  services:
+    pbs01:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: "pbs" # Allow connections to services using self-signed certs
+        servers:          
+          - url: "https://10.16.99.40:8007"
+  serversTransports:
+    pbs:
+      insecureSkipVerify: true

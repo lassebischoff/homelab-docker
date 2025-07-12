@@ -1,0 +1,52 @@
+# ------------------------------
+# -- Stirling-PDF (traefik)
+# -- Updated 2025-04-13
+# ------------------------------
+
+
+name: stirlingpdf
+
+
+services:
+  stirlingpdf:
+    image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:0.45.4
+    container_name: stirlingpdf
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID 
+    depends_on:
+      - traefik
+    networks:
+      traefik:
+    environment:
+      - PUID
+      - PGID
+      - TZ
+      - DOCKER_ENABLE_SECURITY
+      - LANGS
+      - SECURITY_ENABLELOGIN
+      - SYSTEM_DEFAULTLOCALE
+      - SYSTEM_GOOGLEVISIBILITY
+      - SYSTEM_ENABLEALPHAFUNCTIONALITY
+      - SYSTEM_SHOWUPDATE
+      - ENDPOINTS_TOREMOVE
+      - ENDPONITS_GROUPSTOREMOVE
+      - METRICS_ENABLED
+    volumes:
+      - ${DOCKERDIR}/appdata/stirlingpdf/trainingData:/usr/share/tessdata
+      - ${DOCKERDIR}/appdata/stirlingpdf/extraConfigs:/configs
+      - ${DOCKERDIR}/appdata/stirlingpdf/customFiles:/customFiles/
+      - ${DOCKERDIR}/logs/stirlingpdf:/logs/
+      - ${DOCKERDIR}/appdata/stirlingpdf/pipeline:/pipeline/
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.stirlingpdf-rtr.rule=Host(`pdf.${DOMAINNAME}`)"

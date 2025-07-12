@@ -1,0 +1,54 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:0.10.9
+    container_name: homepage
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      - traefik
+    networks:
+      traefik:
+      socket_proxy:
+
+    volumes:
+      - ${DOCKERDIR}/appdata/homepage/config:/app/config
+      - ${DOCKERDIR}/appdata/homepage/data/icons:/app/public/icons
+    secrets:
+      - latitude
+      - longitude
+      - homepage_authentik_api_key
+      - homepage_unifi_username
+      - homepage_unifi_password
+      - homepage_proxmox_api_token_id
+      - homepage_proxmox_api_token_secret
+      - homepage_proxmoxbackupserver_api_token_id
+      - homepage_proxmoxbackupserver_api_token_secret
+      - homepage_truenas_api_key
+      - homepage_opnsense_api_key
+      - homepage_opnsense_api_secret
+      - homepage_moonraker_fluidd_api_key
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - HOMEPAGE_VAR_TZ
+      - HOMEPAGE_VAR_DOMAIN
+      - HOMEPAGE_FILE_LATITUDE
+      - HOMEPAGE_FILE_LONGITUDE
+      - HOMEPAGE_FILE_AUTHENTIK_API_KEY
+      - HOMEPAGE_FILE_UNIFI_USERNAME
+      - HOMEPAGE_FILE_UNIFI_PASSWORD
+      - HOMEPAGE_FILE_PROXMOX_API_TOKEN_ID
+      - HOMEPAGE_FILE_PROXMOX_API_TOKEN_SECRET
+      - HOMEPAGE_FILE_PROXMOXBACKUPSERVER_API_TOKEN_ID
+      - HOMEPAGE_FILE_PROXMOXBACKUPSERVER_API_TOKEN_SECRET
+      - HOMEPAGE_FILE_TRUENAS_API_KEY
+      - HOMEPAGE_FILE_OPNSENSE_API_KEY
+      - HOMEPAGE_FILE_OPNSENSE_API_SECRET
+      - HOMEPAGE_FILE_MOONRAKER_FLUIDD_API_KEY
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.homepage-rtr.rule=Host(`home.${DOMAINNAME}`)"

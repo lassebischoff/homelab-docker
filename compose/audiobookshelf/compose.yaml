@@ -1,0 +1,32 @@
+# ------------------------------
+# -- audiobookshelf (Identity Provider / SSO)
+# -- Updated/Created 2025-02-05
+# Authentik configuration: https://docs.goauthentik.io/docs/installation/configuration
+# ------------------------------
+name: audiobookshelf
+
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.19.0
+    container_name: audiobookshelf
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    user: ${PUID}:${PGID}
+    depends_on:
+      - traefik
+    networks:
+      traefik:
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${DOCKERDIR}/appdata/audiobookshelf/local/config:/config
+      - ${DOCKERDIR}/appdata/audiobookshelf/network/metadata:/metadata
+      - ${DOCKERDIR}/appdata/audiobookshelf/network/audiobooks:/audiobooks
+      - ${DOCKERDIR}/appdata/audiobookshelf/network/books:/books
+      - ${DOCKERDIR}/appdata/audiobookshelf/network/podcasts:/podcasts
+      - ${DOCKERDIR}/appdata/audiobookshelf/network/ttrpg:/ttrpg
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.audiobookshelf-rtr.rule=Host(`shelf.${DOMAINNAME}`)"

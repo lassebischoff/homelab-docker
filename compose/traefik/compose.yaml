@@ -1,0 +1,79 @@
+# ------------------------------  
+# -- Traefik 3
+# -- Updated 2025-02-02
+# ------------------------------
+name: traefik
+
+
+services:
+  traefik:
+    image: traefik:3.0.4
+    container_name: traefik
+    restart: unless-stopped
+    user: ${PUID}:${PGID}
+    security_opt:
+      - no-new-privileges=true
+    depends_on:
+      - socket-proxy  # Comment out if not using socket-proxy
+    networks:
+    # This is ONLY defined this way so that Homepage can reach this container via DNS name due to StrictSNI.
+    # Meaning this container INTERNAL TO DOCKER is only traefik, by adding the alias it is now
+    # traefik AND traefik.domain.tld WITHOUT reaching to a DNS server
+    # Allows containers to reach each other internally without asking out
+      traefik:
+          aliases:
+            - traefik.${DOMAINNAME}
+          #ipv4_address: 10.255.224.2
+      socket_proxy:
+        #ipv4_address: 172.16.11.121
+    command:
+      - "--configFile=/config/traefik.yaml"
+    ports:
+      - name: web
+        host_ip: 0.0.0.0    # All interfaces
+        target: 80          
+        published: "80"     
+        protocol: tcp       
+        app_protocol: http  
+        mode: host         
+      - name: websecure
+        host_ip: 0.0.0.0
+        target: 443
+        published: "443"
+        protocol: tcp
+        app_protocol: https
+        mode: host
+    secrets:
+      - cf_dns_api_token
+      #- traefik_dashboard_credentials
+    environment:
+      - TZ=${TZ}
+      - DOMAINNAME
+      ## Docker Secrets
+      - CF_DNS_API_TOKEN_FILE=/run/secrets/cf_dns_api_token
+      #- TRAEFIK_DASHBOARD_CREDENTIALS_FILE=/run/secrets/traefik_dashboard_credentials # Needed for basic auth - not working for now, see labels
+    volumes:
+      - "$DOCKERDIR/appdata/traefik/config:/config" # traefik.yaml
+      - "$DOCKERDIR/appdata/traefik/data:/data"     # acme.json defined in traefik.yaml
+      - "$DOCKERDIR/appdata/traefik/rules:/rules"   # Dynamic File Provider directory
+      - "$DOCKERDIR/logs/traefik:/logs"
+      ## When using Docker Socket Proxy, comment out the below direct socket access
+      ## Ensure traefik.yaml matches chosen method
+      # - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DOMAINNAME}`) || Host(`traefik.traefik`)"
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"  # Defined in traefik.yaml
+      ## Middlewares
+      #- "traefik.http.routers.traefik-rtr.middlewares=traefik-auth"              # Not work with basic auth for now
+      - "traefik.http.routers.traefik-rtr.middlewares=middlewares-authentik@file"
+      #### Migrate individual service cert resolver to global resolution in traefik.yaml
+      #- "traefik.http.routers.traefik-rtr.tls=true"
+      #- "traefik.http.routers.traefik-rtr.tls.certresolver=le"
+      #- "traefik.http.routers.traefik-rtr.tls.domains[0].main=$DOMAINNAME"
+      #- "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.$DOMAINNAME"
+      ## Services - API
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+
+      - "traefik.enable=true"

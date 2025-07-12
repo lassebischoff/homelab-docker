@@ -1,0 +1,21 @@
+# Configurations for hardware-accelerated transcoding
+# See https://immich.app/docs/features/hardware-transcoding for more info on using hardware transcoding.
+
+services:
+#  cpu: {}
+
+#  cuda:
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities:
+#                - gpu
+#                - compute
+#                - video
+
+  quicksync:
+    devices:
+      - /dev/dri:/dev/dri
